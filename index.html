@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulasi Inner Product (Dot Product) Vektor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-content">
+      <div>
+        <h1>Simulasi Inner Product Vektor</h1>
+        <p class="subtitle">Visualisasi Geometris, Proyeksi, &amp; Perhitungan Aljabar \(\langle \mathbf{u}, \mathbf{v} \rangle\)</p>
+      </div>
+      <div class="preset-group">
+        <span>Preset:</span>
+        <button class="btn-preset" data-preset="acute">Sudut Lancip (&gt; 0)</button>
+        <button class="btn-preset" data-preset="orthogonal">Ortogonal (= 0)</button>
+        <button class="btn-preset" data-preset="obtuse">Sudut Tumpul (&lt; 0)</button>
+        <button class="btn-preset" data-preset="parallel">Sejajar (0°)</button>
+        <button class="btn-preset" data-preset="random">Acak</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-container">
+    <!-- Left Column: Interactive Canvas -->
+    <section class="canvas-panel card">
+      <div class="canvas-toolbar">
+        <div class="legend">
+          <span class="legend-item"><span class="dot u-color"></span> Vektor <strong>u</strong></span>
+          <span class="legend-item"><span class="dot v-color"></span> Vektor <strong>v</strong></span>
+          <span class="legend-item"><span class="dot proj-color"></span> Proyeksi <strong>u</strong> pada <strong>v</strong></span>
+        </div>
+        <div class="view-toggles">
+          <label><input type="checkbox" id="toggle-proj" checked /> Tampilkan Proyeksi</label>
+          <label><input type="checkbox" id="toggle-grid" checked /> Grid</label>
+        </div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="vector-canvas" width="680" height="520"></canvas>
+        <div class="canvas-hint">💡 Geser ujung panah vektor <strong>u</strong> (biru) atau <strong>v</strong> (oranye) langsung di kanvas</div>
+      </div>
+
+      <div class="status-banner" id="status-banner">
+        <span class="status-badge" id="angle-badge">Sudut Lancip</span>
+        <span id="status-description">Inner product bernilai positif karena kedua vektor mengarah ke sisi yang searah.</span>
+      </div>
+    </section>
+
+    <!-- Right Column: Controls & Mathematical Breakdown -->
+    <section class="control-panel">
+      <!-- Vector Controls -->
+      <div class="card controls-card">
+        <h2>Kontrol Komponen Vektor</h2>
+
+        <div class="vector-control u-border">
+          <div class="vc-header">
+            <span class="vc-title u-text">Vektor u = (u<sub>x</sub>, u<sub>y</sub>, u<sub>z</sub>)</span>
+            <span class="vc-norm" id="u-norm-label">||u|| = 0.00</span>
+          </div>
+          <div class="slider-row">
+            <label for="ux">u<sub>x</sub></label>
+            <input type="range" id="ux" min="-8" max="8" step="0.1" value="4" />
+            <input type="number" id="ux-num" min="-8" max="8" step="0.1" value="4" />
+          </div>
+          <div class="slider-row">
+            <label for="uy">u<sub>y</sub></label>
+            <input type="range" id="uy" min="-8" max="8" step="0.1" value="3" />
+            <input type="number" id="uy-num" min="-8" max="8" step="0.1" value="3" />
+          </div>
+          <div class="slider-row">
+            <label for="uz">u<sub>z</sub> <small>(3D)</small></label>
+            <input type="range" id="uz" min="-8" max="8" step="0.1" value="0" />
+            <input type="number" id="uz-num" min="-8" max="8" step="0.1" value="0" />
+          </div>
+        </div>
+
+        <div class="vector-control v-border">
+          <div class="vc-header">
+            <span class="vc-title v-text">Vektor v = (v<sub>x</sub>, v<sub>y</sub>, v<sub>z</sub>)</span>
+            <span class="vc-norm" id="v-norm-label">||v|| = 0.00</span>
+          </div>
+          <div class="slider-row">
+            <label for="vx">v<sub>x</sub></label>
+            <input type="range" id="vx" min="-8" max="8" step="0.1" value="5" />
+            <input type="number" id="vx-num" min="-8" max="8" step="0.1" value="5" />
+          </div>
+          <div class="slider-row">
+            <label for="vy">v<sub>y</sub></label>
+            <input type="range" id="vy" min="-8" max="8" step="0.1" value="0" />
+            <input type="number" id="vy-num" min="-8" max="8" step="0.1" value="0" />
+          </div>
+          <div class="slider-row">
+            <label for="vz">v<sub>z</sub> <small>(3D)</small></label>
+            <input type="range" id="vz" min="-8" max="8" step="0.1" value="0" />
+            <input type="number" id="vz-num" min="-8" max="8" step="0.1" value="0" />
+          </div>
+        </div>
+
+        <!-- Optional Weights for Weighted Inner Product -->
+        <details class="weights-details">
+          <summary>⚙️ Bobot Inner Product Terbobot \(\langle \mathbf{u}, \mathbf{v} \rangle_W = \sum w_i u_i v_i\)</summary>
+          <div class="weights-grid">
+            <div>
+              <label for="wx">w<sub>x</sub></label>
+              <input type="number" id="wx" min="0.1" max="10" step="0.1" value="1" />
+            </div>
+            <div>
+              <label for="wy">w<sub>y</sub></label>
+              <input type="number" id="wy" min="0.1" max="10" step="0.1" value="1" />
+            </div>
+            <div>
+              <label for="wz">w<sub>z</sub></label>
+              <input type="number" id="wz" min="0.1" max="10" step="0.1" value="1" />
+            </div>
+            <button id="reset-weights" class="btn-small">Reset (1,1,1)</button>
+          </div>
+        </details>
+      </div>
+
+      <!-- Key Metrics Cards -->
+      <div class="metrics-grid">
+        <div class="metric-box highlight">
+          <span class="metric-label">Inner Product ⟨u, v⟩</span>
+          <span class="metric-value" id="val-inner">20.00</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Sudut θ</span>
+          <span class="metric-value" id="val-angle">36.87°</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Cosine Similarity</span>
+          <span class="metric-value" id="val-cos">0.800</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Proyeksi Skalar</span>
+          <span class="metric-value" id="val-scalar-proj">4.00</span>
+        </div>
+      </div>
+
+      <!-- Step-by-Step Math Explanation -->
+      <div class="card math-card">
+        <h2>Perhitungan Langkah demi Langkah</h2>
+
+        <div class="formula-block">
+          <h3>1. Definisi Aljabar</h3>
+          <div class="formula-code" id="math-algebraic">
+            ⟨u, v⟩ = uₓvₓ + uᵧvᵧ + u₂v₂
+          </div>
+        </div>
+
+        <div class="formula-block">
+          <h3>2. Definisi Geometris</h3>
+          <div class="formula-code" id="math-geometric">
+            ⟨u, v⟩ = ||u|| · ||v|| · cos(θ)
+          </div>
+        </div>
+
+        <div class="formula-block">
+          <h3>3. Vektor Proyeksi u pada v</h3>
+          <div class="formula-code" id="math-projection">
+            proj_v(u) = (⟨u, v⟩ / ||v||²) · v
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
